@@ -23,38 +23,31 @@ FullColorLed::FullColorLed(int pinR, int pinG, int pinB) :
     pinG_(pinG),
     pinB_(pinB),
     blinkOn_(0),
-    isBlinking_(false),
+    blink_mode_(ALWAYS_ON),
     blink_timer_(TIMER_OFF)
 {
 }
 
-void FullColorLed::setLedColor(bool colorR, bool colorG, bool colorB) {
-    setLedColor(colorR, colorG, colorB, false);
-}
-
-void FullColorLed::setLedColor(bool colorR, bool colorG, bool colorB, bool blink) {
+void FullColorLed::setLedColor(bool colorR, bool colorG, bool colorB, BLINK_MODE blink_mode, uint8_t blink_timeout) {
     colorR_      = colorR;
     colorG_      = colorG;
     colorB_      = colorB;
-    isBlinking_  = blink;
+    blink_mode_   = blink_mode;
 
     blink_timer_ = TIMER_OFF;
-}
-
-void FullColorLed::setLedColor(bool colorR, bool colorG, bool colorB, bool blink, uint8_t blink_timeout) {
-    setLedColor( colorR, colorG, colorB, blink );
-
-    TIMER_START(blink_timer_, blink_timeout);
+    if (blink_timeout > 0) {
+        TIMER_START(blink_timer_, blink_timeout);
+    }
 }
 
 void FullColorLed::off() {
-    setLedColor( 0, 0, 0, false );
+    setLedColor( 0, 0, 0 );
 }
 
 void FullColorLed::onTimer() {
     blinkOn_ = ! blinkOn_;
 
-    if ( blinkOn_ || ! isBlinking_ ) {
+    if ( blinkOn_ || (blink_mode_ == ALWAYS_ON) ) {
         // not blinking = always on
         digitalWrite(pinR_, colorR_);
         digitalWrite(pinG_, colorG_);
@@ -69,6 +62,15 @@ void FullColorLed::onTimer() {
     TIMER_TICK(blink_timer_);
     if (TIMER_FIRED(blink_timer_)) {
         TIMER_STOP(blink_timer_);
-        isBlinking_ = false;
+        switch (blink_mode_) {
+        case BLINK_THEN_ON:
+            blink_mode_ = ALWAYS_ON;
+            break;
+        case BLINK_THEN_OFF:
+            off();
+            break;
+        default:
+            break;
+        }
     }
 }

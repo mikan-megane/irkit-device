@@ -59,7 +59,7 @@ void setup() {
     pinMode(FULLCOLOR_LED_R, OUTPUT);
     pinMode(FULLCOLOR_LED_G, OUTPUT);
     pinMode(FULLCOLOR_LED_B, OUTPUT);
-    color.setLedColor( 1, 0, 0, false ); // red: error
+    color.setLedColor( 1, 0, 0 ); // red: error
 
     //--- initialize long press button
 
@@ -163,7 +163,7 @@ void wifi_hardware_reset () {
 }
 
 void long_pressed() {
-    color.setLedColor( 1, 0, 0, false ); // red: error
+    color.setLedColor( 1, 0, 0 ); // red: error
 
     keys.clear();
     keys.save();
@@ -226,14 +226,14 @@ void on_ir_receive() {
         }
         int8_t cid = irkit_httpclient_post_messages();
         if (cid >= 0) {
-            color.setLedColor( 0, 0, 1, true, 1 ); // received: blue blink for 1sec
+            color.setLedColor( 0, 0, 1, FullColorLed::BLINK_THEN_OFF, 1 ); // received: blue blink for 1sec then off
         }
     }
 }
 
 void on_ir_xmit() {
     MAINLOG_PRINTLN("i>");
-    color.setLedColor( 0, 0, 1, true, 1 ); // xmit: blue blink for 1sec
+    color.setLedColor( 0, 0, 1, FullColorLed::BLINK_THEN_OFF, 1 ); // xmit: blue blink for 1sec then off
 }
 
 // inside ISR, be careful
@@ -272,7 +272,7 @@ void connect() {
     keys.load();
 
     if (keys.isWifiCredentialsSet()) {
-        color.setLedColor( 0, 1, 0, true ); // green blink: connecting
+        color.setLedColor( 0, 1, 0, FullColorLed::BLINK_THEN_ON ); // green blink: connecting
 
         gs.join(keys.getSecurity(),
                 keys.getSSID(),
@@ -280,7 +280,7 @@ void connect() {
     }
 
     if (gs.isJoined()) {
-        color.setLedColor( 0, 1, 1, true ); // cyan blink: setting up
+        color.setLedColor( 0, 1, 1, FullColorLed::BLINK_THEN_ON ); // cyan blink: setting up
 
         keys.setWifiWasValid(true);
         keys.save();
@@ -307,12 +307,12 @@ void connect() {
 
         if (keys.wasWifiValid()) {
             // retry
-            color.setLedColor( 1, 0, 0, false ); // red: error
+            color.setLedColor( 1, 0, 0 ); // red: error
             TIMER_START(reconnect_timer, 5);
         }
         else {
             keys.clear();
-            color.setLedColor( 1, 0, 0, true ); // red blink: listening for POST /wifi
+            color.setLedColor( 1, 0, 0, FullColorLed::BLINK_THEN_ON ); // red blink: listening for POST /wifi
             gs.startLimitedAP();
             if (gs.isLimitedAP()) {
                 gs.listen();

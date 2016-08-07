@@ -20,10 +20,14 @@
 class FullColorLed
 {
 public:
+    typedef enum BLINK_MODE {
+        ALWAYS_ON      = 0,
+        BLINK_THEN_ON  = 1,
+        BLINK_THEN_OFF = 2
+    };
+
     FullColorLed(int pinR, int pinG, int pinB);
-    void setLedColor(bool colorR, bool colorG, bool colorB);
-    void setLedColor(bool colorR, bool colorG, bool colorB, bool blink);
-    void setLedColor(bool colorR, bool colorG, bool colorB, bool blink, uint8_t blink_timeout);
+    void setLedColor(bool colorR, bool colorG, bool colorB, BLINK_MODE blink_mode = ALWAYS_ON, uint8_t blink_timeout = 0);
     void off();
     void onTimer();
 
@@ -34,7 +38,7 @@ private:
     bool colorR_;
     bool colorG_;
     bool colorB_;
-    bool isBlinking_; // defaults to off
+    BLINK_MODE blink_mode_; // defaults to ALWAYS_ON
     volatile bool blinkOn_; // altered inside timer ISR
     volatile uint8_t blink_timer_;
 };
