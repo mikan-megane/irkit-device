@@ -211,7 +211,7 @@ void process_commands() {
 }
 
 void on_irkit_ready() {
-    color.setLedColor( 0, 0, 1, false ); // blue: ready
+    color.off(); // off: ready
 }
 
 void on_ir_receive() {
